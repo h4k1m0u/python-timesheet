@@ -16,52 +16,59 @@ def format_seconds(seconds):
     return "%02d:%02d:%02d" % (dt.hour, dt.minute, dt.second)
 
 # constants & inputs
-FILENAME = 'timesheet.dat'
+FILENAME_TIME = 'time.dat'
+FILENAME_TIMESHEET = 'timesheet.dat'
 
 # get mode (start|stop)
-if len(sys.argv) > 1:
+if len(sys.argv) > 1 and sys.argv[1] in ('start', 'stop'):
     mode = sys.argv[1]
 else:
     print 'Usage: timesheet.py start|stop'
     exit()
 
-# TODO: Format Seconds in H:M:S format.
-# TODO: Create file (start counting) and delete file (compute difference)
-#
-# TODO: Upload automatically to Dropbox with: `dropbox_uploader.sh upload test Timesheet`
-
+# start counting
 if mode == 'start':
     # timer is already started
-    if os.path.isfile(FILENAME):
+    if os.path.isfile(FILENAME_TIME):
         print 'Timer is already started!!!'
         exit()
 
     # record start time
-    f = open(FILENAME, 'wb')
+    fd = open(FILENAME_TIME, 'wb')
 
     # save current time
     current_time = datetime.datetime.now()
-    pickle.dump(current_time, f)
-    f.close()
+    pickle.dump(current_time, fd)
+    fd.close()
 
     # print current time
     print 'Start time:', current_time
+
+# stop counting
 elif mode == 'stop':
     try:
         # get previously saved time
-        f = open(FILENAME, 'rb')
-        previous_time = pickle.load(f)
-        f.close()
+        fd = open(FILENAME_TIME, 'rb')
+        previous_time = pickle.load(fd)
+        fd.close()
 
-        # compute elapsed time & delete file
-        os.remove(FILENAME)
+        # compute elapsed time
         current_time = datetime.datetime.now()
         elapsed_time = current_time - previous_time
+        formatted_elapsed_time = format_seconds(elapsed_time.seconds)
         print 'Stop time:', current_time
-        print 'Elapsed time:', format_seconds(elapsed_time.seconds)
+        print 'Elapsed time:', formatted_elapsed_time
+
+        # save the elapsed time to a timesheet file
+        ft = open(FILENAME_TIMESHEET, 'a+')
+        ft.write(datetime.datetime.now().strftime("%d-%m-%Y") + " " + formatted_elapsed_time + "\n")
+        ft.close()
+
+        # upload timesheet file to dropbox account
+        os.system('dropbox_uploader.sh upload %s Timesheet' % FILENAME_TIMESHEET)
+
+        # delete time file
+        os.remove(FILENAME_TIME)
     except IOError:
         # timer needs to be started first
-        print 'Timesheet needs a start date!!!'
-else:
-    print 'Usage: timesheet.py start|stop'
-    exit()
+        print 'Timer needs to be started first!!!'
