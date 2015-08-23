@@ -1,3 +1,4 @@
 *.pyc
 .*.sw*
 *.dat
+*.dat.tmp
