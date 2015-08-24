@@ -8,8 +8,9 @@ import re
 import fileinput
 
 # constants & inputs
-FILENAME_TIME = 'time.dat'
-FILENAME_TIMESHEET = 'timesheet.dat'
+FILENAME_TIME = os.path.dirname(os.path.realpath(__file__)) + '/time.dat'
+FILENAME_TIMESHEET = os.path.dirname(os.path.realpath(__file__)) + '/timesheet.dat'
+DROPBOX_CLIENT = os.path.dirname(os.path.realpath(__file__)) + '/dropbox_uploader.sh'
 
 def get_number_lines(f):
     """ Get the number of lines of a given file
@@ -53,7 +54,7 @@ def save_time(seconds):
             seconds(int): elapsed time in seconds
     """
     f_timesheet = open(FILENAME_TIMESHEET, 'a+')
-    timesheet_last_line = subprocess.check_output(['tail', '-n', '1', 'timesheet.dat']).strip().split()
+    timesheet_last_line = subprocess.check_output(['tail', '-n', '1', FILENAME_TIMESHEET]).strip().split()
     today_date = datetime.now().strftime("%d-%m-%Y")
 
     if not timesheet_last_line or timesheet_last_line[0] != today_date:
@@ -112,7 +113,7 @@ elif mode == 'stop':
         save_time(elapsed_seconds)
 
         # upload timesheet file to dropbox account
-        subprocess.call(['dropbox_uploader.sh', 'upload', FILENAME_TIMESHEET, 'Timesheet'])
+        subprocess.call([DROPBOX_CLIENT, 'upload', FILENAME_TIMESHEET, 'Timesheet'])
 
         # delete time file
         os.remove(FILENAME_TIME)
