@@ -73,7 +73,7 @@ def save_time(seconds):
         remove_replaced_line(FILENAME_TIMESHEET)
 
 # get mode (start|stop)
-if len(sys.argv) > 1 and sys.argv[1] in ('start', 'stop'):
+if len(sys.argv) > 1 and sys.argv[1] in ('start', 'stop', 'status'):
     mode = sys.argv[1]
 else:
     print 'Usage: timesheet.py start|stop'
@@ -119,3 +119,10 @@ elif mode == 'stop':
     except IOError:
         # timer needs to be started first
         print 'Timer needs to be started first!!!'
+
+# check if started or stopped
+elif mode == 'status':
+    if os.path.isfile(FILENAME_TIME):
+        print 'Timer started!!!'
+    else:
+        print 'Timer stopped!!!'
