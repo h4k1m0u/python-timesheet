@@ -160,7 +160,7 @@ def save_time(seconds):
         remove_line(old_num_lines)
 
 # get mode (start|stop)
-if len(sys.argv) > 1 and sys.argv[1] in ('start', 'stop', 'status'):
+if len(sys.argv) > 1 and sys.argv[1] in ('start', 'stop', 'status', 'new'):
     mode = sys.argv[1]
 else:
     print 'Usage: timesheet.py start|stop'
@@ -198,11 +198,11 @@ elif mode == 'stop':
         # save the elapsed time to a timesheet file
         save_time(elapsed_seconds)
 
-        # upload timesheet file to dropbox account
-        subprocess.call([DROPBOX_CLIENT, 'upload', FILENAME_TIMESHEET, 'Timesheet'])
-
         # delete time file
         os.remove(FILENAME_TIME)
+
+        # upload timesheet file to dropbox account
+        subprocess.call([DROPBOX_CLIENT, 'upload', FILENAME_TIMESHEET, 'Timesheet'])
     except IOError:
         # timer needs to be started first
         print 'Timer needs to be started first!!!'
@@ -219,3 +219,9 @@ elif mode == 'status':
     with open(FILENAME_TIMESHEET, 'r') as f:
         d = file_to_array(f)
         print 'Current week:', timesheet_per_week(d)
+
+# new timesheet today
+elif mode == 'new':
+    with open(FILENAME_TIMESHEET, 'a') as f:
+        today_date = datetime.now().strftime("%Y-%m-%d")
+        f.write('%s 00:00:00\n' % today_date)

@@ -1,0 +1,2 @@
+# h4k1m: add new timesheet entry everyday
+0 0 * * * python timesheet.py new
