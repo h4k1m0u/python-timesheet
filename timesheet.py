@@ -8,9 +8,9 @@ import re
 import fileinput
 
 # constants & inputs
-FILENAME_TIME = os.path.dirname(os.path.realpath(__file__)) + '/time.dat'
-FILENAME_TIMESHEET = os.path.dirname(os.path.realpath(__file__)) + '/timesheet.dat'
-DROPBOX_CLIENT = os.path.dirname(os.path.realpath(__file__)) + '/dropbox_uploader.sh'
+FILENAME_TIME = 'time.dat'
+FILENAME_TIMESHEET = 'timesheet.dat'
+DROPBOX_CLIENT = 'dropbox_uploader.sh'
 
 def file_to_array(f):
     """ Get an associative array (date => timesheet) from the given file
@@ -173,6 +173,9 @@ if mode == 'start':
         print 'Timer is already started!!!'
         exit()
 
+    # download timesheet file from dropbox account
+    subprocess.call(['bash', DROPBOX_CLIENT, 'download', 'Timesheet', FILENAME_TIMESHEET])
+
     # save start time
     with open(FILENAME_TIME, 'wb') as f_time:
         current_time = datetime.now()
@@ -202,7 +205,7 @@ elif mode == 'stop':
         os.remove(FILENAME_TIME)
 
         # upload timesheet file to dropbox account
-        subprocess.call([DROPBOX_CLIENT, 'upload', FILENAME_TIMESHEET, 'Timesheet'])
+        subprocess.call(['bash', DROPBOX_CLIENT, 'upload', FILENAME_TIMESHEET, 'Timesheet'])
     except IOError:
         # timer needs to be started first
         print 'Timer needs to be started first!!!'
